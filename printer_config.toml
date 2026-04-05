@@ -1,0 +1,5 @@
+[grimp-thermal]
+    ip = "192.168.1.87"
+    port = 9100
+    pixel_width = 576
+    profile = "RP850P"
