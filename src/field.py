@@ -52,6 +52,9 @@ class Field:
         # TODO: I've made a hash of this lengthening stuff. Gotta fix it.
         #       desired end state is that each sub-content is as long as the longest one
         #       have not successfully handled situation where there's only one content.
+        # TODO: Probably best to break up this function, frankly.
+        #       Stages are: render to width, match lengths, flatten, render
+        #       Feels like there's a good opportunity to screw up the border here...
         lengthened_content = []
         for rc in rendered_contents:
             if len(rc) < max_content_length:
