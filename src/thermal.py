@@ -22,7 +22,6 @@ class PrintJob:
         pass
 
 
-
 class ConfiguredPrinter:
     def __init__(self, config:PrinterConfig):
         self.config = config
