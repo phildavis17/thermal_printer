@@ -1,7 +1,7 @@
 from characters import SpanningCharacter
 from format import Width48
 from text import Text
-from text_list import TextList
+from text_list import TextList, ListStyle
 from separator import Separator
 from title import Title
 from border import Border, BorderStyle
@@ -98,20 +98,23 @@ class Field:
 if __name__ == "__main__":
     b = Border(BorderStyle.DOUBLE_LINE)
     t = Text("This is a test of a field.\nSecond line\nLoooooooooooooooooooooooooooooooooooooooooooooooooooooooong")
-    f1 = Field([Text("This is the first text")], Width48.HALF, Border())
+    f1 = Field([Text("This is the first text")], Width48.HALF, Border(BorderStyle.CORNER_LINES))
     f2 = Field(
         [
-            Title("A list.", ornament=SpanningCharacter.BLOCK_1),
-            TextList(["first", "second"]),
+            Title("A list."),
+            TextList(["first", "second"], ListStyle.CHECKLIST, double_spaced=True),
         ],
         Width48.HALF,
         Border(BorderStyle.DOUBLE_LINE),
     )
     f = Field(
         [
-            Title("Header", ornament=SpanningCharacter.LINE, surround=True),
+            Title("Header", ornament=SpanningCharacter.LINE, offset=2),
+            Separator(SpanningCharacter.BLANK),
             [f1, f2],
+            Separator(SpanningCharacter.BLANK),
             t,
+            Separator(SpanningCharacter.BLANK),
         ],
         Width48.FULL,
         b,

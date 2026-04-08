@@ -50,9 +50,10 @@ class TextList:
         text_width = width - max_bullet_len
         if text_width <= 0:
             raise ValueError(f"Total list width is too small to print. list_width={width}, max_bullet_length={max_bullet_len}")
+        items = self.items
         if self.double_spaced:
-            self.items = [i + "\n\n" for i in self.items]
-        rendered_items = [Text.build_lines(item, text_width) for item in self.items]
+            items = [i + "\n\n" for i in self.items[:-1]] + [self.items[-1]]
+        rendered_items = [Text.build_lines(item, text_width) for item in items]
         bullets_and_items = zip(rendered_bullets, rendered_items)
         list_elements = chain(*[self._build_element(bullet, item, max_bullet_len) for bullet, item in bullets_and_items])
         rendered_elements = [f"{b + i:<{width}}" for b, i in list_elements]
