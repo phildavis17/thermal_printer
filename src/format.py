@@ -5,6 +5,7 @@ class Alignment(Enum):
     CENTER = "center"
     LEFT = "left"
     RIGHT = "right"
+    NONE = "none"
 
 
 class Underline(Enum):

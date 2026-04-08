@@ -34,8 +34,8 @@ class Title:
                 raise ValueError(f"Unexpected alignment encountered. got: {alignment}")
         return f"{line:{ornament.value}{align}{width}}"
 
-    def render(self, text_width: int = 24, width: int = 48) -> list[str]:
-        title_lines = Text.build_lines(self.text, text_width)
+    def render(self, width: int = 48) -> list[str]:
+        title_lines = Text.build_lines(self.text, width)
         buffer = " " * self.buffer
         title_lines = [f"{buffer}{line}{buffer}" for line in title_lines]
         effective_width = width - self.offset * 2
@@ -44,7 +44,7 @@ class Title:
         rendered_lines = [offset + line + offset for line in aligned_lines]
         if self.surround:
             sep = Separator(self.ornament, offset=self.offset)
-            rendered_lines = sep.render() + rendered_lines + sep.render()
+            rendered_lines = sep.render(width) + rendered_lines + sep.render(width)
         return rendered_lines
 
 

@@ -1,6 +1,4 @@
-from itertools import zip_longest
-from typing import get_args
-
+from characters import SpanningCharacter
 from format import Width48
 from text import Text
 from text_list import TextList
@@ -9,11 +7,12 @@ from title import Title
 from border import Border, BorderStyle
 
 type Content = Text | TextList | Separator | Title | Field
+type Row = Content | list[Content]
 
 class Field:
     def __init__(
         self,
-        content: Content | list[Content],
+        content: list[Row],
         width: int,
         border: Border | None = None,
     ):
@@ -30,60 +29,92 @@ class Field:
         content = [left + line + right for line in content]
         content = [top] + content + [bottom]
         return content
-    
+
+    @staticmethod
     def _pad_content_lines(lines: list[str], target_len: int) -> list[str]:
         line_len = len(lines[0])
         while len(lines) < target_len:
             lines.append(" " * line_len)
-    
-    def _flatten_contents(self, content_width: int):
-        # TODO: add column separation using join character.
-        #       adjust widths accordingly. Have to handle exceeded limits
-        if not isinstance(self.content, list):
-            return self.content
-        specified_widths = [c.width for c in self.content if hasattr(c, "width")]
-        total_flex_width = content_width - sum(specified_widths)
-        flex_width = total_flex_width // (len(self.content) - len(specified_widths))
-        rendered_contents = []
-        for c in self.content:
-            c_width = c.width if hasattr(c, "width") else flex_width
-            rendered_contents.append(c.render(c_width))
-        max_content_length = max([len(rc) for rc in rendered_contents])
-        # TODO: I've made a hash of this lengthening stuff. Gotta fix it.
-        #       desired end state is that each sub-content is as long as the longest one
-        #       have not successfully handled situation where there's only one content.
-        # TODO: Probably best to break up this function, frankly.
-        #       Stages are: render to width, match lengths, flatten, render
-        #       Feels like there's a good opportunity to screw up the border here...
-        lengthened_content = []
-        for rc in rendered_contents:
-            if len(rc) < max_content_length:
-                lc = self._pad_content_lines(rc), max_content_length
-            else:
-                lc = rc
-            lengthened_content.append(lc)
-        return Text("".join(["".join(line) for line in zip_longest(*lengthened_content, fillvalue="")]))
-        
+        return lines
 
+    @staticmethod
+    def _flatten_contents(padded_contents: list[list[str]]) -> list[str]:
+        flat_lines = []
+        for line in zip(*padded_contents):
+            flat_lines.append("".join(line))
+        return flat_lines
+
+    def _get_effective_rendering_width(self, specified_width: int | None) -> int:
+        if specified_width is not None:
+            max_width = min(specified_width, self.width)
+        else:
+            max_width = self.width
+        border_width = 2 if self.border is not None else 0
+        effective_width = max_width - border_width
+        return effective_width, border_width
+
+    def _render_columns(self, columns: list[Content], width: int) -> list[str]:
+        specified = [(i, c.width) for i, c in enumerate(columns) if hasattr(c, "width")]
+        flex_indices = [i for i, c in enumerate(columns) if not hasattr(c, "width")]
+        total_specified = sum(w for _, w in specified)
+
+        col_widths: dict[int, int] = {}
+        if total_specified > width:
+            remaining = width
+            for j, (i, w) in enumerate(specified):
+                if j == len(specified) - 1:
+                    col_widths[i] = max(1, remaining)
+                else:
+                    allocated = max(1, round(w / total_specified * width))
+                    col_widths[i] = allocated
+                    remaining -= allocated
+            for i in flex_indices:
+                col_widths[i] = 0
+        else:
+            flex_count = len(flex_indices)
+            flex_width = (width - total_specified) // flex_count if flex_count > 0 else 0
+            for i, w in specified:
+                col_widths[i] = w
+            for i in flex_indices:
+                col_widths[i] = flex_width
+
+        rendered_columns = [c.render(col_widths[i]) for i, c in enumerate(columns)]
+        max_len = max(len(rc) for rc in rendered_columns)
+        padded = [self._pad_content_lines(rc, max_len) for rc in rendered_columns]
+        return self._flatten_contents(padded)
+
+    def _render_row(self, row: Row, width: int) -> list[str]:
+        if isinstance(row, list):
+            return self._render_columns(row, width)
+        return row.render(width)
 
     def render(self, width: int | None = None) -> list[str]:
-        if width is not None:
-            field_width = min(self.width, width)
-        else:
-            field_width = self.width
-        border_width = 2 if self.border is not None else 0
-        content_width = field_width - border_width
-        self.content = self._flatten_contents(content_width)
-        rendered_content = self.content.render(width=content_width)
-        content_with_border = self._add_border(rendered_content, self.border, self.width)
-        return content_with_border
+        effective_width, border_width = self._get_effective_rendering_width(width)
+        rendered_rows = [self._render_row(row, effective_width) for row in self.content]
+        rendered_content = [line for row in rendered_rows for line in row]
+        return self._add_border(rendered_content, self.border, effective_width + border_width)
 
 
 if __name__ == "__main__":
-    width = Width48.QUARTER
     b = Border(BorderStyle.DOUBLE_LINE)
     t = Text("This is a test of a field.\nSecond line\nLoooooooooooooooooooooooooooooooooooooooooooooooooooooooong")
-    f1 = Field(Text("This is the first text"), Width48.HALF, Border())
-    f = Field([f1, t], Width48.FULL, b)
+    f1 = Field([Text("This is the first text")], Width48.HALF, Border())
+    f2 = Field(
+        [
+            Title("A list.", ornament=SpanningCharacter.BLOCK_1),
+            TextList(["first", "second"]),
+        ],
+        Width48.HALF,
+        Border(BorderStyle.DOUBLE_LINE),
+    )
+    f = Field(
+        [
+            Title("Header", ornament=SpanningCharacter.LINE, surround=True),
+            [f1, f2],
+            t,
+        ],
+        Width48.FULL,
+        b,
+        )
     for l in f.render():
         print(l)

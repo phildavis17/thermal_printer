@@ -55,7 +55,7 @@ class TextList:
         rendered_items = [Text.build_lines(item, text_width) for item in self.items]
         bullets_and_items = zip(rendered_bullets, rendered_items)
         list_elements = chain(*[self._build_element(bullet, item, max_bullet_len) for bullet, item in bullets_and_items])
-        rendered_elements = [b + i for b, i in list_elements]
+        rendered_elements = [f"{b + i:<{width}}" for b, i in list_elements]
         return rendered_elements
 
 
