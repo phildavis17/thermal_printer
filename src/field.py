@@ -81,7 +81,8 @@ class Field:
         rendered_columns = [c.render(col_widths[i]) for i, c in enumerate(columns)]
         max_len = max(len(rc) for rc in rendered_columns)
         padded = [self._pad_content_lines(rc, max_len) for rc in rendered_columns]
-        return self._flatten_contents(padded)
+        flat = self._flatten_contents(padded)
+        return [line.ljust(width) for line in flat]
 
     def _render_row(self, row: Row, width: int) -> list[str]:
         if isinstance(row, list):
@@ -96,9 +97,9 @@ class Field:
 
 
 if __name__ == "__main__":
-    b = Border(BorderStyle.DOUBLE_LINE)
+    b = Border(BorderStyle.DOUBLE_HORIZONTAL)
     t = Text("This is a test of a field.\nSecond line\nLoooooooooooooooooooooooooooooooooooooooooooooooooooooooong")
-    f1 = Field([Text("This is the first text")], Width48.HALF, Border(BorderStyle.CORNER_LINES))
+    f1 = Field([Text("This is the first text")], Width48.QUARTER, Border(BorderStyle.CORNER_LINES))
     f2 = Field(
         [
             Title("A list."),
@@ -107,11 +108,12 @@ if __name__ == "__main__":
         Width48.HALF,
         Border(BorderStyle.DOUBLE_LINE),
     )
+    fill_text = Text(" ")
     f = Field(
         [
             Title("Header", ornament=SpanningCharacter.LINE, offset=2),
             Separator(SpanningCharacter.BLANK),
-            [f1, f2],
+            [f1, fill_text, f2],
             Separator(SpanningCharacter.BLANK),
             t,
             Separator(SpanningCharacter.BLANK),

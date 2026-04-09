@@ -1,4 +1,5 @@
 import os
+import tomllib
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -18,8 +19,8 @@ class PrinterConfig:
 
 
 class PrintJob:
-    def __init__(self):
-        pass
+    def __init__(self, lines: list[str]):
+        self.lines = lines
 
 
 class ConfiguredPrinter:
