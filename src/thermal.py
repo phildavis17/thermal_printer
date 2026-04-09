@@ -35,7 +35,7 @@ class ConfiguredPrinter:
     
     def send_job(self, job: PrintJob) -> None:
         self.reset()
-        for line in PrintJob.render():
+        for line in job.lines():
             self.printer.textln(line)
         self.printer.ln(2)
         self.printer.cut()

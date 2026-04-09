@@ -111,7 +111,8 @@ if __name__ == "__main__":
     fill_text = Text(" ")
     f = Field(
         [
-            Title("Header", ornament=SpanningCharacter.LINE, offset=2),
+            Title("This is a title", ornament=SpanningCharacter.LINE, offset=2),
+            Text("This first text element spans the whole width of the field."),
             Separator(SpanningCharacter.BLANK),
             [f1, fill_text, f2],
             Separator(SpanningCharacter.BLANK),
