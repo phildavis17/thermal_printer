@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 from PIL import Image
 
-from src.characters import SepChar
+from src.characters import SpanningCharacter
 
 PRINTER_IP = "192.168.1.87"  # Replace with your printer's IP address
 PRINTER_PORT = 9100            # Replace with your printer's port if different
@@ -49,23 +49,23 @@ def main():
     #         p.text(f"{r} {c} -> ")
     #         p.text("\xB0")
     #         p.ln()
-    p.textln(SepChar.BLOCK_0.value * 48)
+    p.textln(SpanningCharacter.BLOCK_0.value * 48)
     p.ln()
-    p.textln(SepChar.BLOCK_1.value * 48)
+    p.textln(SpanningCharacter.BLOCK_1.value * 48)
     p.ln()
-    p.textln(SepChar.BLOCK_2.value * 48)
+    p.textln(SpanningCharacter.BLOCK_2.value * 48)
     p.ln()
-    p.textln(SepChar.BLOCK_3.value * 48)
+    p.textln(SpanningCharacter.BLOCK_3.value * 48)
     p.ln()
-    p.textln(SepChar.LINE.value * 48)
+    p.textln(SpanningCharacter.LINE.value * 48)
     p.ln()
-    p.textln(SepChar.DOUBLE_LINE.value * 48)
+    p.textln(SpanningCharacter.DOUBLE_LINE.value * 48)
     p.ln()
-    p.textln(SepChar.BLOCK_UPPER.value * 48)
+    p.textln(SpanningCharacter.BLOCK_UPPER.value * 48)
     p.ln()
-    p.textln(SepChar.BLOCK_LOWER.value * 48)
+    p.textln(SpanningCharacter.BLOCK_LOWER.value * 48)
     p.ln()
-    # p.textln(SepChar.BLOCK_UPPER * 48)
+    # p.textln(SpanningCharacter.BLOCK_UPPER * 48)
     # p.textln("_"*48)
     # p.textln("="*48)
     # p.set(font=0)
